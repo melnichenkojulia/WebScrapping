@@ -1,11 +1,3 @@
-# import wait as wait
-from bs4 import BeautifulSoup
-
-# soup = BeautifulSoup("https://rabota.ua/zapros/python-developer/%d0%ba%d0%b8%d0%b5%d0%b2")
-
-# print(soup.prettify())
-
-from selenium.webdriver.common.keys import Keys
 import time
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
@@ -20,8 +12,10 @@ driver.get('http://www.rabota.ua/')
 time.sleep(3)
 
 wait = WebDriverWait(driver, 5)
-s_box= wait.until(EC.presence_of_element_located((By.TAG_NAME, 'input'))).send_keys("Python")
-s_button =wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'submit-button'))).click()
+s_box= wait.until(EC.presence_of_element_located((By.TAG_NAME, 'input'))).send_keys("Python developer")
+s1=driver.find_elements_by_tag_name("button")
+print(s1)
+s1[1].click()
 
 f_text=driver.find_elements_by_class_name("card")
 
@@ -38,9 +32,6 @@ page_num=math.ceil(page_num)
 
 
 def parse_vacancy(page):
-    # vac_text = str(page.text).replace("Горячая вакансия", "\n").replace("Профиль компании", "\n").replace(
-    #     "Рассмотрим кандидата с особенными потребностями", "\n").split("\n")
-    # print(vac_text)
     title = page.find_elements_by_css_selector('.card-title > a')[0].text
     company = page.find_elements_by_css_selector('.company-profile-name')[0].text
     location = page.find_elements_by_css_selector('.location')[0].text
@@ -53,7 +44,7 @@ def parse_vacancy(page):
         'salary': salary or None,
         'link': link,
         '_id': link,
-        'time_parsed': datetime.now(),
+        # 'time_parsed': datetime.now(),
     }
 
 def parse_title(page_num):
@@ -74,13 +65,6 @@ def parse_title(page_num):
     return vac_collect
 
 
-
-# def to_db(data):
-#     connect=pymongo.MongoClient()
-#     vac=connect["job_seeking"]["vacancy"]
-#     vac.insert_many(data)
-
-
 def update_vac(data):
     connect = pymongo.MongoClient()
     vac = connect["job_seeking"]["vacancy"]
@@ -88,7 +72,7 @@ def update_vac(data):
         print('i', i)
         vac.update_one({'_id': i['_id']}, {'$set': i}, upsert=True)
 
-
-vacancies = parse_title(page_num)
-update_vac(vacancies)
-driver.close()
+if __name__ == '__main__':
+    vacancies = parse_title(page_num)
+    update_vac(vacancies)
+    driver.close()

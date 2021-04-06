@@ -5,26 +5,59 @@ from selenium.webdriver.common.by import By
 from datetime import datetime
 import time
 import math
-from R_ua import *
+import pymongo
 
-driver = webdriver.Chrome('resources/chromedriver')  # Optional argument, if not specified will search path.
-driver.get('http://www.rabota.ua/')
+vac_collect1=[]
 
-time.sleep(3)
+def update_vac1(data):
+    connect = pymongo.MongoClient()
+    vac = connect["job_seeking"]["vacancy"]
+    for i in data:
+        print('i', i)
+        vac.update_one({'_id': i['url']}, {'$set': i}, upsert=True)
 
-wait = WebDriverWait(driver, 5)
-s_box= wait.until(EC.presence_of_element_located((By.TAG_NAME, 'input'))).send_keys("Python")
-s_button =wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'submit-button'))).click()
 
-f_text=driver.find_elements_by_class_name("card")
+# urls=['https://rabota.ua/company277662/vacancy8313749', 'https://rabota.ua/company53660/vacancy8461632']
+urls = []
+client = pymongo.MongoClient()
+for doc in client["job_seeking"]["vacancy"].find():
+    urls.append(doc['_id'])
 
-vac_text=""
-cl_vac_text=[]
-cl_vac_link=[]
+print('urls')
+print(urls)
 
-vac_num=wait.until(EC.presence_of_element_located(
-            (By.CSS_SELECTOR, '#ctl00_content_vacancyList_ltCount > span')))
-page_num=math.ceil(int(vac_num.text)/40)
+for i_url in urls:
+    driver = webdriver.Chrome('resources/chromedriver')  # Optional argument, if not specified will search path.
+    driver.get(i_url)
+    flag = driver.find_elements_by_css_selector(".f-main-wrapper")[0].text
+    print('flag=', flag)
+    if 'Вакансия закрыта' in flag:
+        continue
+    f_text = driver.find_elements_by_tag_name("h1")[0].text
+    city=driver.find_elements_by_css_selector("p.address-string > span")[0].text
+    key_skills=driver.find_elements_by_css_selector("app-clusters li li")
+    details=driver.find_elements_by_css_selector('#description-wrap')[0].text
+
+    sk = []
+    for skill in key_skills:
+        sk.append(skill.text)
+
+    vac_collect1.append({
+        'url': i_url,
+        'title': f_text,
+        'city': city,
+        'skills': sk,
+        'details':details,
+        'time_parsed': datetime.now(),
+        })
+    driver.close()
+    update_vac1(vac_collect1)
+    vac_collect1=[]
+# print(vac_collect1)
+
+
+
+
 
 
 
