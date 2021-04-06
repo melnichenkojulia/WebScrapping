@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from datetime import datetime
+import datetime
 import time
 import math
 import pymongo
@@ -17,14 +17,17 @@ def update_vac1(data):
         vac.update_one({'_id': i['url']}, {'$set': i}, upsert=True)
 
 
-# urls=['https://rabota.ua/company277662/vacancy8313749', 'https://rabota.ua/company53660/vacancy8461632']
+# urls=['https://rabota.ua/company277662/vacancy8313749', 'https://rabota.ua/company322333/vacancy8476607','https://rabota.ua/company53660/vacancy8461632']
 urls = []
 client = pymongo.MongoClient()
 for doc in client["job_seeking"]["vacancy"].find():
-    urls.append(doc['_id'])
+    # print('doc=',doc.keys())
+    if 'time_parsed'not in doc.keys() or doc['time_parsed']<datetime.datetime(2021, 4, 1):
+        urls.append(doc['_id'])
+        print(doc)
 
-print('urls')
-print(urls)
+# print('urls')
+# print(urls)
 
 for i_url in urls:
     driver = webdriver.Chrome('resources/chromedriver')  # Optional argument, if not specified will search path.
@@ -32,6 +35,10 @@ for i_url in urls:
     flag = driver.find_elements_by_css_selector(".f-main-wrapper")[0].text
     print('flag=', flag)
     if 'Вакансия закрыта' in flag:
+        vac_collect1.append({'url': i_url,'time_parsed': datetime.datetime.now(),
+        })
+        update_vac1(vac_collect1)
+        driver.close()
         continue
     f_text = driver.find_elements_by_tag_name("h1")[0].text
     city=driver.find_elements_by_css_selector("p.address-string > span")[0].text
@@ -48,7 +55,7 @@ for i_url in urls:
         'city': city,
         'skills': sk,
         'details':details,
-        'time_parsed': datetime.now(),
+        'time_parsed': datetime.datetime.now(),
         })
     driver.close()
     update_vac1(vac_collect1)
