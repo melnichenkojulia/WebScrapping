@@ -42,7 +42,7 @@ def parse_vacancy(page):
         'company': company,
         'location': location,
         'salary': salary or None,
-        'link': link,
+        # 'link': link,
         '_id': link,
         # 'time_parsed': datetime.now(),
     }

@@ -14,7 +14,7 @@ def update_vac1(data):
     vac = connect["job_seeking"]["vacancy"]
     for i in data:
         print('i', i)
-        vac.update_one({'_id': i['url']}, {'$set': i}, upsert=True)
+        vac.update_one({'_id': i.pop('url')}, {'$set': i}, upsert=True)
 
 
 # urls=['https://rabota.ua/company277662/vacancy8313749', 'https://rabota.ua/company322333/vacancy8476607','https://rabota.ua/company53660/vacancy8461632']
