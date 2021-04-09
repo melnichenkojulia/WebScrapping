@@ -5,6 +5,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from datetime import datetime
 import pymongo
+from selenium.webdriver.common.keys import Keys
+
+
 
 driver = webdriver.Chrome('resources/chromedriver')  # Optional argument, if not specified will search path.
 driver.get('http://www.rabota.ua/')
@@ -13,10 +16,10 @@ time.sleep(3)
 
 wait = WebDriverWait(driver, 5)
 s_box= wait.until(EC.presence_of_element_located((By.TAG_NAME, 'input'))).send_keys("Python developer")
-s1=driver.find_elements_by_tag_name("button")
-print(s1)
-s1[1].click()
-
+# s1=driver.find_elements_by_tag_name("button")
+# print(s1)
+# s1[1].click()
+wait.until(EC.presence_of_element_located((By.TAG_NAME, 'input'))).send_keys(Keys.ENTER)
 f_text=driver.find_elements_by_class_name("card")
 
 vac_text=""
