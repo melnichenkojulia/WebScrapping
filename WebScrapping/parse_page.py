@@ -16,24 +16,18 @@ def update_vac1(data):
         print('i', i)
         vac.update_one({'_id': i.pop('url')}, {'$set': i}, upsert=True)
 
-
 # urls=['https://rabota.ua/company277662/vacancy8313749', 'https://rabota.ua/company322333/vacancy8476607','https://rabota.ua/company53660/vacancy8461632']
 urls = []
 client = pymongo.MongoClient()
 for doc in client["job_seeking"]["vacancy"].find():
-    # print('doc=',doc.keys())
     if 'time_parsed'not in doc.keys() or doc['time_parsed']<datetime.datetime(2021, 4, 1):
         urls.append(doc['_id'])
-        print(doc)
-
-# print('urls')
-# print(urls)
+        # print(doc)
 
 for i_url in urls:
     driver = webdriver.Chrome('resources/chromedriver')  # Optional argument, if not specified will search path.
     driver.get(i_url)
     flag = driver.find_elements_by_css_selector(".f-main-wrapper")[0].text
-    print('flag=', flag)
     if 'Вакансия закрыта' in flag:
         vac_collect1.append({'url': i_url,'time_parsed': datetime.datetime.now(),
         })
@@ -44,7 +38,6 @@ for i_url in urls:
     city=driver.find_elements_by_css_selector("p.address-string > span")[0].text
     key_skills=driver.find_elements_by_css_selector("app-clusters li li")
     details=driver.find_elements_by_css_selector('#description-wrap')[0].text
-
     sk = []
     for skill in key_skills:
         sk.append(skill.text)
@@ -60,7 +53,6 @@ for i_url in urls:
     driver.close()
     update_vac1(vac_collect1)
     vac_collect1=[]
-# print(vac_collect1)
 
 
 
