@@ -1,6 +1,6 @@
 import datetime
 
-from WebScrapping.utils.database import update_vacancies
+from JobScrapping.utils.database import update_vacancies
 
 
 
